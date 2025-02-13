@@ -18,6 +18,7 @@
 //
 //
 
+using BatchRvtUtil;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,7 +28,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using BatchRvtUtil;
 
 namespace BatchRvtGUI;
 
@@ -49,7 +49,7 @@ public partial class BatchRvtGuiForm : Form
     private const string DYNAMO_SCRIPT_FILTER = "Dynamo files (*.dyn)|*.dyn";
     private const string ANY_SCRIPTS_FILTER = "Script files (*.py;*.dyn)|*.py;*.dyn";
 
-    private const int INITIAL_WIDTH = 1040;
+    private const int INITIAL_WIDTH = 1275;
 
     private const int SETUP_HEIGHT = 685;
     private const int SETUP_INITIAL_WIDTH = INITIAL_WIDTH;
@@ -454,7 +454,7 @@ public partial class BatchRvtGuiForm : Form
             {
                 // TODO: report failure to kill the process?
             }
-        
+
 
         if (e.Cancel) return;
 
