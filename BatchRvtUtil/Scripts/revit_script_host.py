@@ -1,4 +1,4 @@
-#
+ï»¿#
 # Revit Batch Processor
 #
 # Copyright (c) 2020  Dan Rumery, BVN
@@ -190,7 +190,7 @@ def RunBatchTaskScript(scriptFilePath):
             elif path_util.HasFileExtension(centralFilePath, ".rfa"):
                 output()
                 output("The file is a Family file.")  
-            # ÅĞ¶ÏÂ·¾¶ÊÇ·ñÒÔ "RSN" ¿ªÍ·
+            # åˆ¤æ–­è·¯å¾„æ˜¯å¦ä»¥ "RSN" å¼€å¤´
             elif centralFilePath.startswith("RSN"):
                 output()
                 output("The file is a RSN Central Model file.")
