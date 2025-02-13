@@ -189,7 +189,14 @@ def RunBatchTaskScript(scriptFilePath):
                     openCreateNewLocal = True
             elif path_util.HasFileExtension(centralFilePath, ".rfa"):
                 output()
-                output("The file is a Family file.")
+                output("The file is a Family file.")  
+            # 判断路径是否以 "RSN" 开头
+            elif centralFilePath.startswith("RSN"):
+                output()
+                output("The file is a RSN Central Model file.")
+                isCentralModel = True
+                if centralFileOpenOption == BatchRvt.CentralFileOpenOption.CreateNewLocal:
+                    openCreateNewLocal = True
             else:
                 output()
                 output("The file is a Non-workshared file.")

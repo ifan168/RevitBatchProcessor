@@ -1,4 +1,4 @@
-#
+﻿#
 # Revit Batch Processor
 #
 # Copyright (c) 2020  Dan Rumery, BVN
@@ -85,18 +85,13 @@ class RevitCloudModelInfo:
         self.cloudModelDescriptor = cloudModelDescriptor
         self.projectGuid = None
         self.modelGuid = None
-        self.modelRSNPath = None
         self.revitVersionText = None
         self.isValid = False
         parts = self.GetCloudModelDescriptorParts(cloudModelDescriptor)
         numberOfParts = len(parts)
         if numberOfParts > 1 :
-            revitVersionPart = str.Empty        
+            revitVersionPart = str.Empty
             otherParts = parts
-            if parts[1].startswith("RSN"):
-                self.modelRSNPath = str.Empty
-                self.revitVersionText=parts[0]
-                self.modelRSNPath=parts[1]             
             if numberOfParts > 2 :
                 revitVersionPart = parts[0]
                 otherParts = parts[1:]
@@ -108,9 +103,7 @@ class RevitCloudModelInfo:
                     self.projectGuid is not None
                     and
                     self.modelGuid is not None
-                    or
-                    self.modelRSNPath is not None
-                    ) 
+                )
         return
 
     def IsValid(self):
@@ -121,9 +114,6 @@ class RevitCloudModelInfo:
 
     def GetModelGuid(self):
         return self.modelGuid
-
-    def GetModelRSNPath(self):
-        return self.modelRSNPath
 
     def GetRevitVersionText(self):
         return self.revitVersionText
@@ -157,6 +147,10 @@ class RevitFileInfo():
     def IsCloudModel(self):
         return self.GetRevitCloudModelInfo().IsValid()
 
+    # 判断是否为RSN路径
+    def IsRSNModel(self):
+        return self.revitFilePath.startswith("RSN")
+
     def GetRevitCloudModelInfo(self):
         return self.cloudModelInfo
 
@@ -173,8 +167,13 @@ class RevitFileInfo():
                 self.GetRevitCloudModelInfo().GetCloudModelDescriptor()
             )
 
+    # RSN无文件大小返回
     def GetFileSize(self):
-        return path_util.GetFileSize(self.revitFilePath)
+        return (
+                path_util.GetFileSize(self.revitFilePath) if not self.IsRSNModel()
+                else
+                0
+            )
 
     def TryGetRevitVersionText(self):
         revitVersionText = None
@@ -185,7 +184,13 @@ class RevitFileInfo():
         return revitVersionText
 
     def Exists(self):
-        return path_util.FileExists(self.revitFilePath)
+        if not self.IsRSNModel():
+            # 本地文件或网络共享文件
+            return path_util.FileExists(self.revitFilePath)
+        else:
+            # 如果是RSN，先默认存在
+            return True
+
 
 def FromFile(settingsFilePath):
     revitFileListData = None

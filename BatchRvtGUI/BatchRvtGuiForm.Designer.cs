@@ -489,7 +489,7 @@
             // 
             // timeOutNumericUpDown
             // 
-            this.timeOutNumericUpDown.Location = new System.Drawing.Point(230, 60);
+            this.timeOutNumericUpDown.Location = new System.Drawing.Point(290, 60);
             this.timeOutNumericUpDown.Name = "timeOutNumericUpDown";
             this.timeOutNumericUpDown.Size = new System.Drawing.Size(46, 21);
             this.timeOutNumericUpDown.TabIndex = 3;

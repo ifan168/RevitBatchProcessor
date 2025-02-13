@@ -127,10 +127,6 @@ def ToCloudPath(cloudProjectId, cloudModelId):
     cloudPath = ModelPathUtils.ConvertCloudGUIDsToCloudPath(cloudProjectGuid, cloudModelGuid)
     return cloudPath
 
-def ToRSNModelPath(rsnPath):
-    rSNModelPath = ModelPathUtils.ConvertUserVisiblePathToModelPath (rsnPath)
-    return rSNModelPath
-
 def ToCloudPath2021(cloudProjectId, cloudModelId):
     cloudProjectGuid = ToGuid(cloudProjectId)
     cloudModelGuid = ToGuid(cloudModelId)
@@ -191,28 +187,22 @@ def IsRvt2021_OrNewer(application):
         return false
 
 def OpenCloudDocument(application, cloudProjectId, cloudModelId, closeAllWorksets=False, worksetConfig=None, audit=False):
-    if cloudProjectId.startswith("RSN"):
-        cloudPath = ToRSNModelPath(cloudProjectId)
+    if IsRvt2021_OrNewer(application):
+        cloudPath = ToCloudPath2021(cloudProjectId, cloudModelId)
     else:
-        if IsRvt2021_OrNewer(application):
-            cloudPath = ToCloudPath2021(cloudProjectId, cloudModelId)
-        else:
-            cloudPath = ToCloudPath(cloudProjectId, cloudModelId)
+        cloudPath = ToCloudPath(cloudProjectId, cloudModelId)
     openOptions = OpenOptions()
     worksetConfig = ParseWorksetConfigurationOption(closeAllWorksets, worksetConfig)
     openOptions.SetOpenWorksetsConfiguration(worksetConfig)
     if audit:
-        openOptions.Audit = True        
+        openOptions.Audit = True
     return application.OpenDocumentFile(cloudPath, openOptions)
 
 def OpenAndActivateCloudDocument(uiApplication, cloudProjectId, cloudModelId, closeAllWorksets=False, worksetConfig=None, audit=False):
-    if cloudProjectId.startswith("RSN"):
-        cloudPath = ToRSNModelPath(cloudProjectId)
+    if IsRvt2021_OrNewer(uiApplication.Application):
+        cloudPath = ToCloudPath2021(cloudProjectId, cloudModelId)
     else:
-        if IsRvt2021_OrNewer(uiApplication.Application):
-            cloudPath = ToCloudPath2021(cloudProjectId, cloudModelId)
-        else:
-            cloudPath = ToCloudPath(cloudProjectId, cloudModelId)
+        cloudPath = ToCloudPath(cloudProjectId, cloudModelId)
     openOptions = OpenOptions()
     worksetConfig = ParseWorksetConfigurationOption(closeAllWorksets, worksetConfig)
     openOptions.SetOpenWorksetsConfiguration(worksetConfig)

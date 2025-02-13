@@ -1,4 +1,4 @@
-#
+﻿#
 # Revit Batch Processor
 #
 # Copyright (c) 2020  Dan Rumery, BVN
@@ -46,6 +46,9 @@ def HasFileExtension(filePath, extension):
     return GetFileExtension(filePath).ToLower() == extension.ToLower()
 
 def FileExists(filePath):
+    # 如果路径以 RSN 开头,暂时也返回true
+    if filePath.startswith("RSN"):
+        return True
     return File.Exists(filePath)
 
 def GetFullPath(path):
