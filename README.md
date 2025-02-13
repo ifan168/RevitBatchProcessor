@@ -121,7 +121,7 @@ The ***two ingredients*** you will need in order to use the Revit Batch Processo
   
   For an Excel file this means the first column of each row contains a file path.
 
-  For a Text file this means each line contains a file path.
+  For a Text file this means each line contains a file path,and adding support for Revit RSN (Revit Server Network).
   
   For example:
   ```
@@ -129,6 +129,9 @@ The ***two ingredients*** you will need in order to use the Revit Batch Processo
   P:\16\ProjectXYZ\ModelA.rvt
   P:\16\ProjectXYZ\ModelB.rvt
   P:\16\ProjectXYZ\ConsultantModel.rvt
+  RSN://192.168.10.30/MainModel.rvt
+  RSN://192.168.10.30/ModelA.rvt
+  RSN://192.168.10.30/ModelB.rvt
   ```
 
   NOTE: you can generate this list in .txt format using the *New List* button in the GUI. It will prompt you for a folder to scan for Revit files. Optionally you can specify the type of Revit files to scan for and also whether to include subfolders in the scan.
