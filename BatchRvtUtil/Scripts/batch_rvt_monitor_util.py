@@ -45,16 +45,24 @@ REVIT_PROCESS_BEGIN_PROCESSING_TIMEOUT_IN_SECONDS = 5 * SECONDS_PER_MINUTE
 
 def ShowSupportedRevitFileInfo(supportedRevitFileInfo):
     message = "\n"
-    if supportedRevitFileInfo.IsCloudModel():
+    if supportedRevitFileInfo.IsCloudModel():        
         revitCloudModelInfo = supportedRevitFileInfo.GetRevitCloudModelInfo()
-        projectGuidText = revitCloudModelInfo.GetProjectGuid().ToString()
-        modelGuidText = revitCloudModelInfo.GetModelGuid().ToString()
-        message += ("\t" + "CLOUD MODEL\n")
-        message += ("\t" + "Project ID: " + projectGuidText + "\n")
-        message += ("\t" + "Model ID: " + modelGuidText + "\n")
-        revitVersionText = supportedRevitFileInfo.TryGetRevitVersionText()
-        revitVersionText = revitVersionText if not str.IsNullOrWhiteSpace(revitVersionText) else "NOT SPECIFIED!"
-        message += ("\t" + "Revit version: " + revitVersionText + "\n")
+        if revitCloudModelInfo.GetModelRSNPath() is not None:
+            projectRSNText = revitCloudModelInfo.GetModelRSNPath().ToString()
+            message += ("\t" + "RSN Central MODEL\n")
+            message += ("\t" + "RSNPath: " + projectRSNText + "\n")
+            revitVersionText = supportedRevitFileInfo.TryGetRevitVersionText()
+            revitVersionText = revitVersionText if not str.IsNullOrWhiteSpace(revitVersionText) else "NOT SPECIFIED!"
+            message += ("\t" + "Revit version: " + revitVersionText + "\n")
+        else:
+            projectGuidText = revitCloudModelInfo.GetProjectGuid().ToString()
+            modelGuidText = revitCloudModelInfo.GetModelGuid().ToString()
+            message += ("\t" + "CLOUD MODEL\n")
+            message += ("\t" + "Project ID: " + projectGuidText + "\n")
+            message += ("\t" + "Model ID: " + modelGuidText + "\n")
+            revitVersionText = supportedRevitFileInfo.TryGetRevitVersionText()
+            revitVersionText = revitVersionText if not str.IsNullOrWhiteSpace(revitVersionText) else "NOT SPECIFIED!"
+            message += ("\t" + "Revit version: " + revitVersionText + "\n")
     else:
         revitFileInfo = supportedRevitFileInfo.GetRevitFileInfo()
         revitFilePath = revitFileInfo.GetFullPath()

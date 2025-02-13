@@ -85,13 +85,18 @@ class RevitCloudModelInfo:
         self.cloudModelDescriptor = cloudModelDescriptor
         self.projectGuid = None
         self.modelGuid = None
+        self.modelRSNPath = None
         self.revitVersionText = None
         self.isValid = False
         parts = self.GetCloudModelDescriptorParts(cloudModelDescriptor)
         numberOfParts = len(parts)
         if numberOfParts > 1 :
-            revitVersionPart = str.Empty
+            revitVersionPart = str.Empty        
             otherParts = parts
+            if parts[1].startswith("RSN"):
+                self.modelRSNPath = str.Empty
+                self.revitVersionText=parts[0]
+                self.modelRSNPath=parts[1]             
             if numberOfParts > 2 :
                 revitVersionPart = parts[0]
                 otherParts = parts[1:]
@@ -103,7 +108,9 @@ class RevitCloudModelInfo:
                     self.projectGuid is not None
                     and
                     self.modelGuid is not None
-                )
+                    or
+                    self.modelRSNPath is not None
+                    ) 
         return
 
     def IsValid(self):
@@ -114,6 +121,9 @@ class RevitCloudModelInfo:
 
     def GetModelGuid(self):
         return self.modelGuid
+
+    def GetModelRSNPath(self):
+        return self.modelRSNPath
 
     def GetRevitVersionText(self):
         return self.revitVersionText

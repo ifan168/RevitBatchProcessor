@@ -200,6 +200,7 @@ def GetActiveDocument(uiapp):
 
 def SafeCloseWithoutSave(doc, isOpenedInUI, closedMessage, output):
     app = doc.Application
+    output(closedMessage)
     try:
         if not isOpenedInUI:
             revit_file_util.CloseWithoutSave(doc)
@@ -273,14 +274,20 @@ def WithOpenedCloudDocument(uiapp, openInUI, cloudProjectId, cloudModelId, works
     output("Opening cloud model.")
     closeAllWorksets = worksetConfig is None
     if openInUI:
+        #output("openInUI")
         uidoc = revit_file_util.OpenAndActivateCloudDocument(uiapp, cloudProjectId, cloudModelId, closeAllWorksets, worksetConfig, audit)
         doc = uidoc.Document
     else:
+        #output("not openInUI")
         doc = revit_file_util.OpenCloudDocument(app, cloudProjectId, cloudModelId, closeAllWorksets, worksetConfig, audit)
     try:
-        cloudModelPathText = ModelPathUtils.ConvertModelPathToUserVisiblePath(doc.GetCloudModelPath())
-        output()
-        output("Cloud model path is: " + cloudModelPathText)
+        if cloudProjectId.startswith("RSN"):
+            output()
+            output("Cloud model path is: " + cloudProjectId)
+        else:
+            cloudModelPathText = ModelPathUtils.ConvertModelPathToUserVisiblePath(doc.GetCloudModelPath())
+            output()
+            output("Cloud model path is: " + cloudModelPathText)
         result = documentAction(doc)
     finally:
         SafeCloseWithoutSave(doc, openInUI, "Closed cloud model.", output)
