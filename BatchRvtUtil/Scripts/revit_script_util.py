@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Revit Batch Processor
 #
@@ -24,6 +25,11 @@ clr.AddReference("RevitAPI")
 from Autodesk.Revit.DB import ModelPathUtils, WorksetConfiguration, WorksetConfigurationOption
 from Autodesk.Revit.Exceptions import OperationCanceledException, CorruptModelException, InvalidOperationException, ArgumentException
 
+clr.AddReference("RevitAPIUI")
+from Autodesk.Revit.UI import TaskDialog, UIApplication,PostableCommand
+
+from Autodesk.Revit.UI.RevitCommandId import LookupPostableCommandId
+
 import exception_util
 import path_util
 import revit_file_util
@@ -31,6 +37,7 @@ import revit_dialog_util
 import revit_failure_handling
 import batch_rvt_util
 from batch_rvt_util import ScriptDataUtil, BatchRvt
+import time
 
 OUTPUT_FUNCTION_CONTAINER = [None]
 
@@ -198,6 +205,16 @@ def GetActiveDocument(uiapp):
     doc = uidoc.Document if uidoc is not None else None
     return doc
 
+def close_document_with_postcommand(uiApp):
+    try:
+        # 获取关闭文档的命令ID
+        close_command_id = LookupPostableCommandId(PostableCommand.Close)
+        
+        # 使用PostCommand触发关闭命令
+        uiApp.PostCommand(close_command_id)
+    except Exception as ex:
+        TaskDialog.Show("Error", str(ex))
+
 def SafeCloseWithoutSave(doc, isOpenedInUI, closedMessage, output):
     app = doc.Application
     try:
@@ -205,6 +222,15 @@ def SafeCloseWithoutSave(doc, isOpenedInUI, closedMessage, output):
             revit_file_util.CloseWithoutSave(doc)
             output()
             output(closedMessage)
+        # else:
+            # # 获取UIApplication实例来关闭文档
+            # uiApp = UIApplication(doc.Application)
+            # time.sleep(5) 
+            # # 关闭当前文档
+            # close_document_with_postcommand(uiApp)
+            # time.sleep(10) 
+            # output("OpenedInUI Closed without save")
+            # output(closedMessage)
     except InvalidOperationException, e:
         output()
         output("WARNING: Couldn't close the document!")
@@ -224,11 +250,28 @@ def WithOpenedDetachedDocument(uiapp, openInUI, centralFilePath, discardWorksets
     output("Opening detached instance of central file: " + centralFilePath)
     closeAllWorksets = worksetConfig is None
     if openInUI:
-        if discardWorksets:
-            uidoc = revit_file_util.OpenAndActivateDetachAndDiscardWorksets(uiapp, centralFilePath, audit)
-        else:
-            uidoc = revit_file_util.OpenAndActivateDetachAndPreserveWorksets(uiapp, centralFilePath, closeAllWorksets, worksetConfig, audit)
-        doc = uidoc.Document
+        try:
+            if discardWorksets:
+                uidoc = revit_file_util.OpenAndActivateDetachAndDiscardWorksets(uiapp, centralFilePath, audit)
+            else:
+                uidoc = revit_file_util.OpenAndActivateDetachAndPreserveWorksets(uiapp, centralFilePath, closeAllWorksets, worksetConfig, audit)
+            time.sleep(20)  # 延迟 2 秒
+            output("time.sleep(20)")
+            if uidoc is None:
+                output("uidoc is None")
+            else:
+                output("uidoc is not None")
+            if uidoc.Document is None:
+                output("Document is None")
+            else:
+                output("Document is not None")
+            doc = uidoc.Document
+        except Exception, e:            
+            output(str(e))
+            output("Task started")
+            time.sleep(10)  # 延迟 2 秒
+            output("Task completed")
+            doc = uidoc.Document
     else:
         if discardWorksets:
             doc = revit_file_util.OpenDetachAndDiscardWorksets(app, centralFilePath, audit)
@@ -237,7 +280,7 @@ def WithOpenedDetachedDocument(uiapp, openInUI, centralFilePath, discardWorksets
     try:
         result = documentAction(doc)
     finally:
-        SafeCloseWithoutSave(doc, openInUI, "Closed detached instance of central file: " + centralFilePath, output)
+        SafeCloseWithoutSave(doc, openInUI, "Closed detached instance of central file: " + centralFilePath, output)     
     return result
 
 def WithOpenedNewLocalDocument(uiapp, openInUI, centralFilePath, localFilePath, worksetConfig, audit, documentAction, output):

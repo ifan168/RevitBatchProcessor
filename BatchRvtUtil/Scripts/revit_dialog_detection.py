@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Revit Batch Processor
 #
@@ -17,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-
+# -*- coding: utf-8 -*-
 import clr
 import System
 
@@ -43,6 +44,8 @@ NWC_TITLE = "Navisworks NWC Exporter"
 REFERENCIAS_TITLE = "Referencias sin resolver"
 REVIT_TITLE = "Revit"
 SAVE_FILE_WINDOW_TITLE = "Save File"
+MISSING_THIRD_PARTY_UPDATE_WINDOW_TITLE_CN = "缺少第三方更新程序"
+SAVE_FILE_WINDOW_TITLE_CN = "保存文件"
 
 
 ACEPTAR_BUTTON_TEXT = "Aceptar"
@@ -55,17 +58,24 @@ CEDER_TODO_BUTTON_TEXT = "Ceder todos los elementos y subproyectos"
 CERRAR_ARCHIVO_LOCAL_BUTTON_TEXT = "Cerrar el archivo local"
 CERRAR_BUTTON_TEXT = "Cerrar"
 CLOSE_BUTTON_TEXT = "Close"
+CLOSE_BUTTON_TEXT_CN = "关闭(C)"
 CLOSE_LOCAL_FILE_BUTTON_TEXT = "Close the local file"
 CTRLNOTIFYSINK_CLASS_NAME = "CtrlNotifySink"
 DIRECTUI_CLASS_NAME = "DirectUIHWND"
 DO_NOT_SAVE_THE_PROJECT_TEXT = "Do not save the project"
 IGNORAR_BUTTON_TEXT = "Ignorar y abrir el proyecto"
 NO_BUTTON_TEXT = "No"
+NO_BUTTON_TEXT_CN = "否(N)"
 NO_GUARDAR_PROYECTO_BUTTON_TEXT = "No guardar el proyecto"
 OK_BUTTON_TEXT = "OK"
 RHINO_SELECTION_BUTTON_TEXT = "Rhino 7" #Change this to target a different version of Rhino by default
 STATIC_CONTROL_CLASS_NAME = "Static"
 YES_BUTTON_TEXT = "Yes"
+UNRESOLVED_REFERENCE = "未解析的参照"
+IGNORE_AND_CONTINUE_OPENING_PROJECT_BUTTON = "忽略并继续打开项目"
+
+CONTINUE_PROCESSING_FILE_BUTTON_TEXT_CN = "继续处理文件。"
+DISABLE_WARNING_AND_CONTINUE_PROCESSING_FILE_BUTTON_TEXT_CN = "不再发出关于此更新程序的警告，并继续处理文件"
 
 RELINQUISH_ALL_ELEMENTS_AND_WORKSETS_TEXT = "Relinquish all elements and worksets"
 RELINQUISH_ELEMENTS_AND_WORKSETS_TEXT = "Relinquish elements and worksets"
@@ -99,12 +109,19 @@ def SendButtonClick(buttons, output):
     cerrarButtons = ui_automation_util.FilterControlsByText(buttons, CERRAR_BUTTON_TEXT)
     cerrarLocalButtons = ui_automation_util.FilterControlsByText(buttons, CERRAR_ARCHIVO_LOCAL_BUTTON_TEXT)
     closeButtons = ui_automation_util.FilterControlsByText(buttons, CLOSE_BUTTON_TEXT)
+    closeCNButtons = ui_automation_util.FilterControlsByText(buttons, CLOSE_BUTTON_TEXT_CN)
     closeLocalButtons = ui_automation_util.FilterControlsByText(buttons, CLOSE_LOCAL_FILE_BUTTON_TEXT)
     ignorarButtons = ui_automation_util.FilterControlsByText(buttons, IGNORAR_BUTTON_TEXT)
     noButtons = ui_automation_util.FilterControlsByText(buttons, NO_BUTTON_TEXT)
     noGuardarButtons = ui_automation_util.FilterControlsByText(buttons, NO_GUARDAR_PROYECTO_BUTTON_TEXT)
     okButtons = ui_automation_util.FilterControlsByText(buttons, OK_BUTTON_TEXT)
     rhino_selection_buttons = ui_automation_util.FilterControlsByText(buttons, RHINO_SELECTION_BUTTON_TEXT)
+    thirdPartyUpdate_buttons = ui_automation_util.FilterControlsByText(buttons, CONTINUE_PROCESSING_FILE_BUTTON_TEXT_CN)
+    for button in buttons:
+            # 获取按钮的文本
+            button_text = button.WindowText
+            # 输出按钮文本
+            output("Button WindowText: " + button_text)
 
     if len(okButtons) == 1:
         targetButton = okButtons[0]
@@ -130,7 +147,11 @@ def SendButtonClick(buttons, output):
         targetButton = aceptarButtons[0]
     elif len(closeLocalButtons) == 1:
         targetButton = aceptarButtons[0]
-
+    elif len(thirdPartyUpdate_buttons) >= 1:
+        targetButton = thirdPartyUpdate_buttons[0]
+    elif len(closeCNButtons) == 1:
+        targetButton = closeCNButtons[0]
+        
     else:
         output()
         output("WARNING: Could not find suitable button to click.")
@@ -212,6 +233,14 @@ def DismissCheekyRevitDialogBoxes(revitProcessId, output_):
                 output()
                 output("'" + enabledDialog.WindowText + "' dialog box detected.")
                 DismissRevitDialogBox(enabledDialog.WindowText, buttons, NO_BUTTON_TEXT, output)
+            elif enabledDialog.WindowText == SAVE_FILE_WINDOW_TITLE_CN and len(buttons) == 3:
+                output()
+                output("'" + enabledDialog.WindowText + "' dialog box detected.")
+                DismissRevitDialogBox(enabledDialog.WindowText, buttons, NO_BUTTON_TEXT_CN, output)
+            # elif enabledDialog.WindowText == UNRESOLVED_REFERENCE and len(buttons) == 2:
+            #     output()
+            #     output("'" + enabledDialog.WindowText + "' dialog box detected.")
+            #     DismissRevitDialogBox(enabledDialog.WindowText, buttons, IGNORE_AND_CONTINUE_OPENING_PROJECT_BUTTON, output)
             elif enabledDialog.WindowText == EDITABLE_ELEMENTS_TITLE and len(buttons) == 3:
                 output()
                 output("'" + enabledDialog.WindowText + "' dialog box detected.")
@@ -235,7 +264,11 @@ def DismissCheekyRevitDialogBoxes(revitProcessId, output_):
             elif enabledDialog.WindowText == REVIT_TITLE and len(buttons) == 1:
                 output()
                 output("'" + enabledDialog.WindowText + "' dialog box detected.")
-                DismissRevitDialogBox(enabledDialog.WindowText, buttons, ACEPTAR_BUTTON_TEXT, output)
+                tButtons = ui_automation_util.FilterControlsByText(buttons, CLOSE_BUTTON_TEXT_CN)
+                if len(tButtons) == 1:
+                    DismissRevitDialogBox(enabledDialog.WindowText, buttons, CLOSE_BUTTON_TEXT_CN, output)
+                else:
+                    DismissRevitDialogBox(enabledDialog.WindowText, buttons, ACEPTAR_BUTTON_TEXT, output)
             elif enabledDialog.WindowText == CAMBIOS_TITLE and len(buttons) == 3:
                 output()
                 output("'" + enabledDialog.WindowText + "' dialog box detected.")
@@ -275,6 +308,11 @@ def DismissCheekyRevitDialogBoxes(revitProcessId, output_):
                 output("'" + enabledDialog.WindowText + "' dialog box detected.")
                 output()
                 SendButtonClick(win32Buttons, output)
+            elif enabledDialog.WindowText in MISSING_THIRD_PARTY_UPDATE_WINDOW_TITLE_CN and len(buttons) == 4:
+                output()
+                output("'" + enabledDialog.WindowText + "' dialog box detected.")
+                output()
+                SendButtonClick(buttons, output)
             else:
                 output()
                 output("Revit dialog box detected!")

@@ -1,4 +1,4 @@
-#
+﻿#
 # Revit Batch Processor
 #
 # Copyright (c) 2020  Dan Rumery, BVN
@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-
+# -*- coding: utf-8 -*-
 import clr
 import System
 

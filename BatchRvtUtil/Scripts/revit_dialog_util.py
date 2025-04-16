@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Revit Batch Processor
 #
@@ -18,6 +19,7 @@
 #
 #
 
+from re import S
 import clr
 import System
 
@@ -43,6 +45,15 @@ def Try(action):
         pass
     return result
 
+def to_unicode(string):
+    try:
+        mybytes=bytes(string, 'utf-8')
+        unicode_str =mybytes.decode('utf-8')
+        return unicode_str
+    except UnicodeDecodeError:
+        # 如果解码失败，返回一个错误信息
+        return "解码错误：无法将字节串转换为Unicode字符串"
+
 def DialogShowingEventHandler(sender, eventArgs, output):
     try:
         dialogResult = IDOK
@@ -51,21 +62,31 @@ def DialogShowingEventHandler(sender, eventArgs, output):
         msg.AppendLine("Dialog box shown:")
         msg.AppendLine()
         if isinstance(eventArgs, TaskDialogShowingEventArgs):
-            msg.AppendLine("\tMessage: " + str(eventArgs.Message))
-            if eventArgs.DialogId == "TaskDialog_Missing_Third_Party_Updater":
+            output("DialogShowingEventHandler Exec")        
+            eventArgsMessageutf8 = to_unicode(eventArgs.Message)
+            eventArgsDialogIdutf8 = to_unicode(eventArgs.DialogId)
+            msg.AppendLine("\tMessage: " + eventArgsMessageutf8)
+            if eventArgsDialogIdutf8 == "TaskDialog_Missing_Third_Party_Updater":
                 dialogResult = 1001 # Continue working with the file.
-            elif eventArgs.DialogId == "TaskDialog_Location_Position_Changed":
+            elif eventArgsDialogIdutf8 == "TaskDialog_Location_Position_Changed":
+                dialogResult = 1002 # Do not save.
+            elif eventArgsDialogIdutf8 == "TaskDialog_Unresolved_References":
+                dialogResult = 1002 # Do not save.
+                output("dialogResult = 1002")        
+
+            elif eventArgsDialogIdutf8 == "TaskDialog_Save_File":
                 dialogResult = 1002 # Do not save.
         elif isinstance(eventArgs, MessageBoxShowingEventArgs):
-            msg.AppendLine("\tMessage: " + str(eventArgs.Message))
-            msg.AppendLine("\tDialogType: " + str(eventArgs.DialogType))
-        dialogId = Try(lambda: eventArgs.DialogId) # Available on DialogBoxShowingEventArgs in Revit 2017+
+            msg.AppendLine("\tMessage: " + eventArgsMessageutf8)
+            msg.AppendLine("\tDialogType: " + to_unicode(eventArgs.DialogType))
+        dialogId = Try(lambda: eventArgsDialogIdutf8) # Available on DialogBoxShowingEventArgs in Revit 2017+
         if dialogId is not None:
-            msg.AppendLine("\tDialogId: " + str(dialogId))
+            msg.AppendLine("\tDialogId: " + to_unicode(dialogId))
         helpId = Try(lambda: eventArgs.HelpId) # No longer available in Revit 2018+
         if helpId is not None:
-            msg.AppendLine("\tHelpId: " + str(helpId))
+            msg.AppendLine("\tHelpId: " + to_unicode(helpId))
         output(msg.ToString())
+        output("eventArgs.OverrideResult(dialogResult)")
         eventArgs.OverrideResult(dialogResult)
     except Exception, e:
         errorMsg = StringBuilder()

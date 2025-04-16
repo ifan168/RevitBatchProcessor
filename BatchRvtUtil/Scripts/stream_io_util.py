@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Revit Batch Processor
 #
@@ -17,6 +18,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
+import sys
+reload(sys)  # 重新加载 sys 模块
+sys.setdefaultencoding('utf-8')  # 设置默认编码为 utf-8
 
 import clr
 import System

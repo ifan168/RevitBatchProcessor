@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Revit Batch Processor
 #
@@ -53,6 +54,7 @@ def WithErrorHandling(action, errorMessage, output=None, showErrorMessageBox=Fal
         if output is not None:
             output()
             output(errorMessage)
+            output(e.message)
             exception_util.LogOutputErrorDetails(e, output)
 
         if showErrorMessageBox:

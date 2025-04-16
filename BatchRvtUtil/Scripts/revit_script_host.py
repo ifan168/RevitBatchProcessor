@@ -1,4 +1,5 @@
-﻿#
+# -*- coding: utf-8 -*-
+#
 # Revit Batch Processor
 #
 # Copyright (c) 2020  Dan Rumery, BVN
@@ -69,7 +70,7 @@ def RunSingleTaskScript(scriptFilePath):
     try:
         def executeTaskScript():
             output()
-            output("Task script operation started.")
+            output("Task script operation started.executeTaskScript()")
             script_util.ExecuteScript(scriptFilePath)
             output()
             output("Task script operation completed.")
@@ -211,7 +212,7 @@ def RunBatchTaskScript(scriptFilePath):
                 def executeTaskScript():
                     success = False
                     output()
-                    output("Task script operation started.")
+                    output("Task script operation started.processDocument.executeTaskScript")
                     if path_util.HasFileExtension(scriptFilePath, script_util.DYNAMO_SCRIPT_FILE_EXTENSION):
                         if revit_dynamo.IsDynamoRevitModuleLoaded():
                             revit_dynamo.ExecuteDynamoScript(uiapp, scriptFilePath, showUI=False)
